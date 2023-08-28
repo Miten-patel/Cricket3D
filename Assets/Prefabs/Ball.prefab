@@ -261,3 +261,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _desiredBallSpeed: 80
+  forceAmount: 0

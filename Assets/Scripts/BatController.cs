@@ -4,68 +4,111 @@ namespace Yudiz
 {
     public class BatController : MonoBehaviour
     {
-        #region PUBLIC_VARS
+        public float moveSpeed = 5f;
+        public float rotationSpeed = 100f;
 
-        Vector3 pos;
+        public float forceAmount;
 
-        Vector3 start;
-
-
-
-        public float speed;
-        #endregion
-
-        #region PRIVATE_VARS
+        private Rigidbody rb;
+        private bool isRotating = false;
+        private bool rotateBack = false;
+        private Quaternion initialRotation;
+        private Quaternion targetRotation;
 
         private void Start()
         {
-            //start = transform.position;
-            //pos = transform.position;
+            rb = GetComponent<Rigidbody>();
+            initialRotation = transform.rotation;
+            targetRotation = Quaternion.Euler(120f, 0f, 0f);
         }
 
         private void Update()
         {
-            BatInputs();
+            //MoveBatWithMouse();
+
+            if (Input.GetMouseButtonDown(0))
+            {
+                StartBatRotation();
+            }
+
+            UpdateBatRotation();
         }
 
-        #endregion
 
-        #region UNITY_CALLBACKS        
-        #endregion
-
-        #region STATIC_FUNCTIONS
-        #endregion
-
-        #region PUBLIC_FUNCTIONS
-        #endregion
-
-        #region PRIVATE_FUNCTIONS
-
-        private void BatInputs()
+        private void MoveBatWithMouse()
         {
-            //Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            //pos = Input.mousePosition;
-            //pos.z = 45;
-            //pos = Camera.main.ScreenToWorldPoint(pos);
-            //transform.position = Vector3.Lerp(transform.position, pos, speed * Time.deltaTime);
+            Vector3 mousePosition = Input.mousePosition;
+            mousePosition.z = Camera.main.transform.position.y - transform.position.y;
 
+            Vector3 worldMousePosition = Camera.main.ScreenToWorldPoint(mousePosition);
+            worldMousePosition.y = transform.position.y;
+            worldMousePosition.z = transform.position.z;
+
+            Vector3 targetPosition = new Vector3(worldMousePosition.x, transform.position.y, transform.position.z);
+
+            transform.position = Vector3.Lerp(transform.position, targetPosition, moveSpeed * Time.deltaTime);
         }
 
-        //function Update()
-        //{
-        //    //transform.position.y = 0;       //This doesn't work apparently :(
 
+
+        //private void OnCollisionEnter(Collision collision)
+        //{
+        //    BallScript ballScript = collision.gameObject.GetComponent<BallScript>();
+
+        //    if (ballScript != null)
+        //    {
+        //        // Calculate the direction in which to apply the force
+        //        Vector3 forceDirection = collision.contacts[0].point - transform.position;
+        //        forceDirection.Normalize();
+
+        //        // Apply a force to the ball's Rigidbody
+        //        Rigidbody ballRigidbody = collision.gameObject.GetComponent<Rigidbody>();
+        //        if (ballRigidbody != null)
+        //        {
+        //            ballRigidbody.AddForce(forceDirection * forceAmount, ForceMode.Impulse);
+        //        }
+        //    }
         //}
 
-        #endregion
 
-        #region CO-ROUTINES
-        #endregion
+        private void StartBatRotation()
+        {
+            isRotating = true;
+            rotateBack = false;
+        }
 
-        #region EVENT_HANDLERS
-        #endregion
+        private void UpdateBatRotation()
+        {
+            if (isRotating)
+            {
+                Quaternion target;
+                if (rotateBack)
+                {
+                    target = initialRotation;
+                }
+                else
+                {
+                    target = targetRotation;
+                }
 
-        #region UI_CALLBACKS
-        #endregion
+                float step = rotationSpeed * Time.deltaTime;
+
+                transform.rotation = Quaternion.RotateTowards(transform.rotation, target, step);
+
+                if (Quaternion.Angle(transform.rotation, target) < 0.1f)
+                {
+                    if (rotateBack)
+                    {
+                        isRotating = false;
+                        rotateBack = false;
+                    }
+                    else
+                    {
+                        rotateBack = true;
+                    }
+                }
+            }
+        }
+
     }
 }

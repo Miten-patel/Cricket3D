@@ -4,49 +4,33 @@ namespace Yudiz
 {
     public class BallSpawner : MonoBehaviour
     {
-        #region PUBLIC_VARS
-        #endregion
 
-        #region PRIVATE_VARS
+        public static BallSpawner inst;
+
         [SerializeField] private BallScript _ballPrefab;
-        #endregion
 
-        #region UNITY_CALLBACKS
+        [Space(10)]
+        [Header("Throw Target Position")]
+        [SerializeField] private float MinX = 2f;
+        [SerializeField] private float MaxX = 2f;
+        [SerializeField] private float MinZ = 40f;
+        [SerializeField] private float MaxZ = 40f;
 
-        private void Start()
+        private void Awake()
         {
-            InvokeRepeating(nameof(SpawnBall), 0, 3);
+            inst = this;
         }
 
-        #endregion
-
-        #region STATIC_FUNCTIONS
-        #endregion
-
-        #region PUBLIC_FUNCTIONS
-        #endregion
-
-        #region PRIVATE_FUNCTIONS
-
-        private void SpawnBall()
+        public void SpawnBall()
         {
-            _ballPrefab = Instantiate(_ballPrefab, transform.position, Quaternion.identity);
+            BallScript ballInstance  = Instantiate(_ballPrefab, transform.position, Quaternion.identity);
 
-            Vector3 randomPos = new Vector3(Random.Range(2f, -0.3f), 0, Random.Range(40, 45));
-            
-            _ballPrefab.Shoot(randomPos);
+            Vector3 randomPos = new Vector3(Random.Range(MinX,MaxX), 0, Random.Range(MinZ,MaxZ));
+
+            ballInstance.Shoot(randomPos);
+
+            OversManager.instance.ballCount--;
 
         }
-
-        #endregion
-
-        #region CO-ROUTINES
-        #endregion
-
-        #region EVENT_HANDLERS
-        #endregion
-
-        #region UI_CALLBACKS
-        #endregion
     }
 }

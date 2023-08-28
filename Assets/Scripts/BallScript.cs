@@ -4,24 +4,16 @@ namespace Yudiz
 {
     public class BallScript : MonoBehaviour
     {
-        #region PUBLIC_VARS
-        #endregion
-
-        #region PRIVATE_VARS
-
-        Rigidbody _ballRigidBody;
-
+        [Header("Speed Km/hr")]
         [SerializeField] private float _desiredBallSpeed;
 
-        #endregion
+        [Space(10)]
+        [Header("Force After Hitting Bat")]
+        [SerializeField] private float forceAmount;
 
-        #region UNITY_CALLBACKS        
-        #endregion
-
-        #region STATIC_FUNCTIONS
-        #endregion
-
-        #region PUBLIC_FUNCTIONS
+        private Rigidbody _ballRigidBody;
+        private bool collidedWithGround;
+        private bool isLookingForBoundary;
 
         public void Shoot(Vector3 target)
         {
@@ -33,18 +25,48 @@ namespace Yudiz
             _ballRigidBody.AddForce((target - transform.position) * forceMagnitude);
         }
 
-        #endregion
 
-        #region PRIVATE_FUNCTIONS
-        #endregion
+        private void OnCollisionEnter(Collision collision)
+        {
 
-        #region CO-ROUTINES
-        #endregion
+            BatController batScript = collision.gameObject.GetComponent<BatController>();
 
-        #region EVENT_HANDLERS
-        #endregion
+            if (batScript != null)
+            {
+                _ballRigidBody.AddForce(Vector3.back * forceAmount, ForceMode.Impulse);
+                isLookingForBoundary = true;
+            }
 
-        #region UI_CALLBACKS
-        #endregion
+            if (isLookingForBoundary)
+            {
+                if (collision.gameObject.CompareTag("Ground"))
+                {
+                    Debug.Log("collided with Ground");
+                    collidedWithGround = true;
+                    isLookingForBoundary = false;
+                }
+            }
+        }
+
+
+        private void OnTriggerEnter(Collider other)
+        {
+            if(other.gameObject.CompareTag("Boundary") && collidedWithGround)
+            {
+                Debug.Log("four");
+                ScoreManager.inst.AddScore(4);
+                OversManager.instance.StartOver();
+            }
+            else if (other.gameObject.CompareTag("Boundary") && !collidedWithGround)
+            {
+                Debug.Log("Six");
+                ScoreManager.inst.AddScore(6);
+                OversManager.instance.StartOver();
+            }
+        }
+
+
+
     }
+
 }
