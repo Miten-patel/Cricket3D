@@ -5,68 +5,63 @@ namespace Yudiz
     public class BallScript : MonoBehaviour
     {
         [Header("Speed Km/hr")]
-        [SerializeField] private float _desiredBallSpeed;
+        [SerializeField] private float desiredBallSpeed;
 
         [Space(10)]
         [Header("Force After Hitting Bat")]
         [SerializeField] private float forceAmount;
 
-        private Rigidbody _ballRigidBody;
+        private Rigidbody ballRigidbody;
         private bool collidedWithGround;
         private bool isLookingForBoundary;
 
-        public void Shoot(Vector3 target)
+        private void Awake()
         {
-            _ballRigidBody = GetComponent<Rigidbody>();
-
-            float desiredSpeedInMetersPerSeconds = _desiredBallSpeed * 1000.0f / 3600.0f;
-            float forceMagnitude = _ballRigidBody.mass * desiredSpeedInMetersPerSeconds;
-
-            _ballRigidBody.AddForce((target - transform.position) * forceMagnitude);
+            ballRigidbody = GetComponent<Rigidbody>();
         }
 
+        public void Shoot(Vector3 target)
+        {
+            float desiredSpeedInMetersPerSecond = desiredBallSpeed * 1000.0f / 3600.0f;
+            float forceMagnitude = ballRigidbody.mass * desiredSpeedInMetersPerSecond;
 
+            ballRigidbody.AddForce((target - transform.position) * forceMagnitude);
+        }
         private void OnCollisionEnter(Collision collision)
         {
+            BatController batController = collision.gameObject.GetComponent<BatController>();
 
-            BatController batScript = collision.gameObject.GetComponent<BatController>();
-
-            if (batScript != null)
+            if (batController != null)
             {
-                _ballRigidBody.AddForce(Vector3.back * forceAmount, ForceMode.Impulse);
+                ballRigidbody.AddForce(Vector3.back * forceAmount, ForceMode.Impulse);
                 isLookingForBoundary = true;
             }
 
-            if (isLookingForBoundary)
+            if (isLookingForBoundary && collision.gameObject.CompareTag("Ground"))
             {
-                if (collision.gameObject.CompareTag("Ground"))
-                {
-                    Debug.Log("collided with Ground");
-                    collidedWithGround = true;
-                    isLookingForBoundary = false;
-                }
+                Debug.Log("Collided with Ground");
+                collidedWithGround = true;
+                isLookingForBoundary = false;
             }
         }
-
 
         private void OnTriggerEnter(Collider other)
         {
-            if(other.gameObject.CompareTag("Boundary") && collidedWithGround)
+            if (other.gameObject.CompareTag("Boundary"))
             {
-                Debug.Log("four");
-                ScoreManager.inst.AddScore(4);
-                OversManager.instance.StartOver();
-            }
-            else if (other.gameObject.CompareTag("Boundary") && !collidedWithGround)
-            {
-                Debug.Log("Six");
-                ScoreManager.inst.AddScore(6);
+                if (collidedWithGround)
+                {
+                    Debug.Log("Four");
+                    ScoreManager.inst.AddScore(4);
+                }
+                else
+                {
+                    Debug.Log("Six");
+                    ScoreManager.inst.AddScore(6);
+                }
+
                 OversManager.instance.StartOver();
             }
         }
-
-
-
     }
-
 }

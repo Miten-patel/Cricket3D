@@ -177,7 +177,7 @@ TrailRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Time: 1
+  m_Time: 0.5
   m_PreviewTimeScale: 1
   m_Parameters:
     serializedVersion: 3
@@ -260,5 +260,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a603d496b6374a7a8464800f023d36c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _desiredBallSpeed: 80
-  forceAmount: 0
+  desiredBallSpeed: 80
+  forceAmount: 2
